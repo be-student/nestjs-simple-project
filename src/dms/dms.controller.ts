@@ -1,36 +1,41 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiQuery, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('workspace')
+@ApiTags('DM')
 @Controller('api/workspaces/:url/dms')
 export class DmsController {
   @ApiParam({
     name: 'url',
     required: true,
-    description: 'workspace url',
+    description: '워크스페이스 url',
   })
   @ApiParam({
     name: 'id',
     required: true,
-    description: 'user id',
+    description: '사용자 아이디',
   })
   @ApiQuery({
     name: 'perPage',
     required: true,
-    description: 'item per page',
+    description: '한 번에 가져오는 개수',
   })
   @ApiQuery({
     name: 'page',
     required: true,
-    description: 'page index',
+    description: '불러올 페이지',
   })
-  @Get(':id/chatts')
+  @Get(':id/chats')
   getChat(@Query() query, @Param() param) {
     console.log(query.perPage, query.page);
+    console.log(param.id, param.url);
   }
-  // getChat(@Query("perPage") abc, @Query("page") def){
-  //     console.log(abc,def)
+
+  // @Get(':id/chats')
+  // getChat(@Query('perPage') perPage, @Query('page') page, @Param('url') url, @Param('id') id) {
+  //   console.log(perPage, page);
+  //   console.log(url, id)
   // }
+
   @Post(':id/chats')
   postChat(@Body() body) {}
 }
