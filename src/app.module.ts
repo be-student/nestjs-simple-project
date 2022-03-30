@@ -1,32 +1,42 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import * as ormconfig from '../ormconfig';
 import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
-import { DmsModule } from './dms/dms.module';
-import { UsersService } from './users/users.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import ormConfig from '../ormconfig';
-import { Users } from './entities/Users';
+import { DMsModule } from './dms/dms.module';
+import { FrontendMiddleware } from './middlewares/frontend.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot(ormconfig),
+    AuthModule,
     UsersModule,
     WorkspacesModule,
     ChannelsModule,
-    DmsModule,
-    TypeOrmModule.forRoot(ormConfig),
-    TypeOrmModule.forFeature([Users]),
+    DMsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UsersService],
+  providers: [AppService],
 })
-export class AppModule {
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(FrontendMiddleware).forRoutes({
+      path: '/**',
+      method: RequestMethod.ALL,
+    });
   }
 }
